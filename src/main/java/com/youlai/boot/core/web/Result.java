@@ -32,6 +32,17 @@ public class Result<T> implements Serializable {
         return result;
     }
 
+    /**
+     * 成功响应（自定义消息）
+     */
+    public static <T> Result<T> success(T data, String msg) {
+        Result<T> result = new Result<>();
+        result.setCode(ResultCode.SUCCESS.getCode());
+        result.setMsg(StrUtil.isNotBlank(msg) ? msg : ResultCode.SUCCESS.getMsg());
+        result.setData(data);
+        return result;
+    }
+
     public static <T> Result<T> failed() {
         return result(ResultCode.SYSTEM_ERROR.getCode(), ResultCode.SYSTEM_ERROR.getMsg(), null);
     }

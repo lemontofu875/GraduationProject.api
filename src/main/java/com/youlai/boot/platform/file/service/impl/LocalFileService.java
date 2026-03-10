@@ -62,10 +62,12 @@ public class LocalFileService implements FileService {
             throw new RuntimeException("文件上传失败");
         }
         // 获取文件访问路径，因为这里是本地存储，所以直接返回文件的相对路径，需要前端自行处理访问前缀
-        String fileUrl = File.separator + folder + File.separator + fileName;
+        String objectPath = folder + File.separator + fileName;
+        String fileUrl = File.separator + objectPath;
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(originalFilename);
         fileInfo.setUrl(fileUrl);
+        fileInfo.setPath(objectPath);
         return fileInfo;
     }
 

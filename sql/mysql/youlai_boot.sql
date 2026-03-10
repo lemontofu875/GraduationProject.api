@@ -622,5 +622,47 @@ CREATE TABLE `ai_command_record` (
   KEY `idx_is_dangerous` (`is_dangerous`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='AI命令记录表';
 
+-- ----------------------------
+-- 智能相册 - 相册表
+-- ----------------------------
+DROP TABLE IF EXISTS `album`;
+CREATE TABLE `album` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(100) NOT NULL COMMENT '相册名称',
+  `user_id` bigint DEFAULT NULL COMMENT '所属用户ID',
+  `cover_url` varchar(500) DEFAULT NULL COMMENT '封面图URL',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='相册表';
+
+-- ----------------------------
+-- 智能相册 - 照片表
+-- ----------------------------
+DROP TABLE IF EXISTS `photo`;
+CREATE TABLE `photo` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `album_id` bigint NOT NULL COMMENT '所属相册ID',
+  `original_name` varchar(255) NOT NULL COMMENT '原始文件名',
+  `file_path` varchar(500) NOT NULL COMMENT '存储路径',
+  `file_url` varchar(1000) NOT NULL COMMENT '访问URL',
+  `file_size` bigint DEFAULT NULL COMMENT '文件大小(字节)',
+  `exif_info` json DEFAULT NULL COMMENT 'EXIF信息(光圈/快门/ISO/拍摄时间/分辨率等)',
+  `ai_description` varchar(1000) DEFAULT NULL COMMENT 'AI分析-图片描述',
+  `ai_tags` varchar(500) DEFAULT NULL COMMENT 'AI分析-标签(逗号分隔)',
+  `ai_scene` varchar(100) DEFAULT NULL COMMENT 'AI分析-场景分类',
+  `description` varchar(500) DEFAULT NULL COMMENT '用户备注',
+  `is_favorite` tinyint(1) DEFAULT 0 COMMENT '是否收藏(0-否 1-是)',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '上传时间',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_album_id` (`album_id`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='照片表';
+
+-- 默认相册（用于测试）
+INSERT INTO `album` (`id`, `name`, `user_id`, `cover_url`) VALUES (1, '默认相册', 1, NULL);
+
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -20,4 +20,7 @@ public class FileInfo {
     @Schema(description = "文件URL")
     private String url;
 
+    @Schema(description = "存储路径(如 202403/xxx.jpg)")
+    private String path;
+
 }

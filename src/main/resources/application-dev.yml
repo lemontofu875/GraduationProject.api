@@ -182,6 +182,7 @@ springdoc:
         - com.youlai.boot.system.controller
         - com.youlai.boot.platform.file.controller
         - com.youlai.boot.platform.codegen.controller
+        - com.youlai.boot.platform.album.controller
   default-flat-param-object: true
 
 # knife4j 接口文档配置
@@ -210,6 +211,14 @@ xxl:
       port: 9999 # 执行器通讯端口
       logpath: /data/applogs/xxl-job/jobhandler # 任务运行日志文件存储磁盘路径
       logretentiondays: 30 # 日志保存天数，值大于3时生效
+
+# 智能相册 - AI 图片分析配置（yunwu.ai / OpenAI 兼容）
+album:
+  ai:
+    enabled: true
+    api-url: https://yunwu.ai/v1/chat/completions
+    api-key: ${ALBUM_AI_API_KEY:}
+    model: gpt-4o
 
 # 验证码配置
 captcha:

@@ -280,6 +280,13 @@
         <version>1.0.0-M6</version>
       </dependency>
 
+        <!-- EXIF 元数据解析（照片光圈、快门、ISO等） -->
+        <dependency>
+            <groupId>com.drewnoakes</groupId>
+            <artifactId>metadata-extractor</artifactId>
+            <version>2.18.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

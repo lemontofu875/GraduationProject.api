@@ -123,9 +123,11 @@ public class MinioFileService implements FileService {
                 fileUrl = customDomain + "/"+ bucketName + "/"+ dateFolder + "/"+ fileName;
             }
 
+            String objectPath = dateFolder + "/" + fileName;
             FileInfo fileInfo = new FileInfo();
             fileInfo.setName(originalFilename);
             fileInfo.setUrl(fileUrl);
+            fileInfo.setPath(objectPath);
             return fileInfo;
         } catch (Exception e) {
             log.error("上传文件失败", e);

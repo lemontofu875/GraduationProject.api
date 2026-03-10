@@ -86,6 +86,7 @@ public class AliyunFileService implements FileService {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(originalFilename);
         fileInfo.setUrl(fileUrl);
+        fileInfo.setPath(fileName);
         return fileInfo;
     }
 
