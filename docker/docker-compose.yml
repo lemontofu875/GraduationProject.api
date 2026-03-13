@@ -17,7 +17,7 @@ services:
       - ./mysql/data:/var/lib/mysql # 持久化 MySQL 数据
       - ../sql/mysql:/docker-entrypoint-initdb.d # 初始化 SQL 脚本目录
     ports:
-      - 3307:3307
+      - 3306:3306
     networks:
       - youlai-boot # 加入 "youlai-boot" 网络
 

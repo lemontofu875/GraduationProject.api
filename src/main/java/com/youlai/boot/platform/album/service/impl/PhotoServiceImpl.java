@@ -53,8 +53,16 @@ public class PhotoServiceImpl implements PhotoService {
         // 3. 解析 EXIF
         ExifInfoVO exifInfo = exifParseService.parseExif(file);
 
-        // 4. 调用 AI 分析图片内容
-        AiImageAnalysisDTO aiResult = aiImageAnalysisService.analyzeImage(fileInfo.getUrl());
+        // 4. 调用 AI 分析图片内容（传入文件字节：本地/内网 URL 时以 base64 发送，否则大模型无法访问）
+        byte[] fileBytes;
+        try {
+            fileBytes = file.getBytes();
+        } catch (Exception e) {
+            log.warn("读取文件字节失败，AI 将仅使用 URL: {}", e.getMessage());
+            fileBytes = null;
+        }
+        String mimeType = file.getContentType();
+        AiImageAnalysisDTO aiResult = aiImageAnalysisService.analyzeImage(fileInfo.getUrl(), fileBytes, mimeType);
 
         // 5. 持久化到数据库
         Photo photo = new Photo();

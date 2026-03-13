@@ -213,11 +213,12 @@ xxl:
       logretentiondays: 30 # 日志保存天数，值大于3时生效
 
 # 智能相册 - AI 图片分析配置（yunwu.ai / OpenAI 兼容）
+# 本地 MinIO 的图片 URL 云端不可访问，已改为自动用 base64 发送图片，只需配置 api-key 即可
 album:
   ai:
     enabled: true
     api-url: https://yunwu.ai/v1/chat/completions
-    api-key: ${ALBUM_AI_API_KEY:}
+    api-key: ${ALBUM_AI_API_KEY:sk-aQivmCBTQneYzMygvIhrphKQkaCjEMFvYtzfJgpsN7xbs4Zr}  # 必填：大模型 API Key，未配置时 AI 分析不执行
     model: gpt-4o
 
 # 验证码配置
