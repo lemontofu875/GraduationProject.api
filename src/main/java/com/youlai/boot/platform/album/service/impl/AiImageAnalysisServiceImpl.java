@@ -31,14 +31,14 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
     @Value("${album.ai.api-url:https://yunwu.ai/v1/chat/completions}")
     private String apiUrl;
 
-    @Value("${album.ai.api-key:}")
+    @Value("${album.ai.api-key:sk-aQivmCBTQneYzMygvIhrphKQkaCjEMFvYtzfJgpsN7xbs4Zr}")
     private String apiKey;
 
     @Value("${album.ai.model:gpt-4o}")
     private String model;
 
     private static final String SYSTEM_PROMPT = "你是一个专业的图片分析助手。请分析用户提供的图片，以JSON格式返回，包含以下字段：" +
-            "description(详细描述图片内容，如风景、人物、天气、颜色等)、" +
+            "description(详细描述图片内容，如风景、人物、天气、颜色、标志性建筑等)、" +
             "tags(用逗号分隔的标签，如：海边,沙滩,小狗,蓝天)、" +
             "scene(场景分类，如：风景、人像、美食、建筑、动物等)。只返回JSON，不要其他文字注意用中文。";
 

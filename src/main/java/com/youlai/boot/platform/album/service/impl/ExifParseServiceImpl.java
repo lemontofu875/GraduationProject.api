@@ -35,28 +35,24 @@ public class ExifParseServiceImpl implements ExifParseService {
         try (InputStream inputStream = file.getInputStream()) {
             Metadata metadata = ImageMetadataReader.readMetadata(inputStream);
 
-            // 光圈 (F-Number)
+            // 光圈 (F-Number)，EXIF 常为有理数如 "16/10" -> f/1.6
             String aperture = getTagValue(metadata, ExifSubIFDDirectory.class, ExifSubIFDDirectory.TAG_FNUMBER);
             if (aperture != null) {
-                try {
-                    double fNum = Double.parseDouble(aperture);
+                Double fNum = parseRationalOrDouble(aperture);
+                if (fNum != null) {
                     exifInfo.setAperture(String.format("f/%.1f", fNum));
-                } catch (NumberFormatException e) {
+                } else {
                     exifInfo.setAperture(aperture);
                 }
             }
 
-            // 快门速度 (Exposure Time)
+            // 快门速度 (Exposure Time)，可能为 "1/200" 或小数
             String shutterSpeed = getTagValue(metadata, ExifSubIFDDirectory.class, ExifSubIFDDirectory.TAG_EXPOSURE_TIME);
             if (shutterSpeed != null) {
-                try {
-                    double sec = Double.parseDouble(shutterSpeed);
-                    if (sec < 1) {
-                        exifInfo.setShutterSpeed(String.format("1/%ds", (int) Math.round(1 / sec)));
-                    } else {
-                        exifInfo.setShutterSpeed(sec + "s");
-                    }
-                } catch (NumberFormatException e) {
+                String formatted = formatShutterSpeed(shutterSpeed);
+                if (formatted != null) {
+                    exifInfo.setShutterSpeed(formatted);
+                } else {
                     exifInfo.setShutterSpeed(shutterSpeed);
                 }
             }
@@ -115,5 +111,41 @@ public class ExifParseServiceImpl implements ExifParseService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 解析有理数 "16/10" 或小数 "1.6"，返回数值
+     */
+    private Double parseRationalOrDouble(String value) {
+        if (value == null || value.isBlank()) return null;
+        value = value.trim();
+        int slash = value.indexOf('/');
+        if (slash > 0) {
+            try {
+                double num = Double.parseDouble(value.substring(0, slash).trim());
+                double den = Double.parseDouble(value.substring(slash + 1).trim());
+                return den != 0 ? num / den : null;
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 格式化为快门显示：如 "1/200" -> "1/200s"，小数秒 -> "1/125s" 或 "2s"
+     */
+    private String formatShutterSpeed(String value) {
+        Double sec = parseRationalOrDouble(value);
+        if (sec == null) return null;
+        if (sec < 1 && sec > 0) {
+            int den = (int) Math.round(1 / sec);
+            return "1/" + den + "s";
+        }
+        return sec + "s";
     }
 }
