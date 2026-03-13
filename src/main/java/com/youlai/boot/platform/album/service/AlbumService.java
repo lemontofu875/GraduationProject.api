@@ -27,4 +27,12 @@ public interface AlbumService {
      * @return 相册选项列表
      */
     List<AlbumOptionVO> listAlbumOptions();
+
+    /**
+     * 删除相册
+     *
+     * @param id 相册ID
+     * @return 是否删除成功
+     */
+    boolean deleteAlbum(Long id);
 }

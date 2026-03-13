@@ -38,4 +38,11 @@ public class AlbumController {
     public Result<List<AlbumOptionVO>> listAlbumOptions() {
         return Result.success(albumService.listAlbumOptions());
     }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除相册", description = "根据相册ID删除，若相册下存在照片则不允许删除")
+    public Result<?> deleteAlbum(@PathVariable Long id) {
+        boolean ok = albumService.deleteAlbum(id);
+        return Result.judge(ok);
+    }
 }
