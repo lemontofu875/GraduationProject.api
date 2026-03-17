@@ -1,5 +1,8 @@
 package com.youlai.boot.platform.album.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.youlai.boot.platform.album.model.query.PhotoPageQuery;
+import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,4 +30,12 @@ public interface PhotoService {
      * @param isFavorite 是否收藏
      */
     void updateFavorite(Long photoId, Boolean isFavorite);
+
+    /**
+     * 分页查询照片，支持多条件筛选；不传筛选项时返回所有照片
+     *
+     * @param queryParams 分页及筛选项：拍摄时间、AI描述/标签/场景、用户备注、是否收藏、相册名称
+     * @return 照片分页列表（含相册名称及完整照片信息）
+     */
+    IPage<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams);
 }

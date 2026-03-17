@@ -7,6 +7,10 @@ import com.youlai.boot.platform.album.model.dto.AiImageAnalysisDTO;
 import com.youlai.boot.platform.album.model.entity.Album;
 import com.youlai.boot.platform.album.model.entity.Photo;
 import com.youlai.boot.platform.album.model.vo.ExifInfoVO;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.youlai.boot.platform.album.model.query.PhotoPageQuery;
+import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
 import com.youlai.boot.platform.album.service.AiImageAnalysisService;
 import com.youlai.boot.platform.album.service.ExifParseService;
@@ -93,6 +97,12 @@ public class PhotoServiceImpl implements PhotoService {
         }
         photo.setIsFavorite(isFavorite);
         photoMapper.updateById(photo);
+    }
+
+    @Override
+    public IPage<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams) {
+        Page<PhotoPageVO> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
+        return photoMapper.getPhotoPage(page, queryParams);
     }
 
     private void validateParams(MultipartFile file, Long albumId) {

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.youlai.boot.platform.album.mapper.PhotoMapper">
+
+    <!-- 照片分页结果映射（exif_info 为 JSON，需 TypeHandler） -->
+    <resultMap id="PhotoPageVOMap" type="com.youlai.boot.platform.album.model.vo.PhotoPageVO">
+        <id column="id" property="id"/>
+        <result column="album_id" property="albumId"/>
+        <result column="album_name" property="albumName"/>
+        <result column="original_name" property="originalName"/>
+        <result column="file_path" property="filePath"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="exif_info" property="exifInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="ai_description" property="aiDescription"/>
+        <result column="ai_tags" property="aiTags"/>
+        <result column="ai_scene" property="aiScene"/>
+        <result column="description" property="description"/>
+        <result column="is_favorite" property="isFavorite"/>
+        <result column="create_time" property="uploadTime"/>
+    </resultMap>
+
+    <!-- 照片分页查询：无筛选时返回所有照片 -->
+    <select id="getPhotoPage" resultMap="PhotoPageVOMap">
+        SELECT
+            p.id,
+            p.album_id,
+            a.name AS album_name,
+            p.original_name,
+            p.file_path,
+            p.file_url,
+            p.file_size,
+            p.exif_info,
+            p.ai_description,
+            p.ai_tags,
+            p.ai_scene,
+            p.description,
+            p.is_favorite,
+            p.create_time
+        FROM photo p
+        LEFT JOIN album a ON a.id = p.album_id
+        <where>
+            <if test="queryParams.shootTime != null and queryParams.shootTime.size() >= 1 and queryParams.shootTime[0] != null and queryParams.shootTime[0] != ''">
+                <bind name="shootStart" value="queryParams.shootTime[0].length() == 10 ? queryParams.shootTime[0] + ' 00:00:00' : queryParams.shootTime[0]"/>
+                AND JSON_UNQUOTE(JSON_EXTRACT(p.exif_info, '$.shootTime')) &gt;= #{shootStart}
+            </if>
+            <if test="queryParams.shootTime != null and queryParams.shootTime.size() >= 2 and queryParams.shootTime[1] != null and queryParams.shootTime[1] != ''">
+                <bind name="shootEnd" value="queryParams.shootTime[1].length() == 10 ? queryParams.shootTime[1] + ' 23:59:59' : queryParams.shootTime[1]"/>
+                AND JSON_UNQUOTE(JSON_EXTRACT(p.exif_info, '$.shootTime')) &lt;= #{shootEnd}
+            </if>
+            <if test="queryParams.aiDescription != null and queryParams.aiDescription != ''">
+                AND p.ai_description LIKE CONCAT('%', #{queryParams.aiDescription}, '%')
+            </if>
+            <if test="queryParams.aiTags != null and queryParams.aiTags != ''">
+                AND p.ai_tags LIKE CONCAT('%', #{queryParams.aiTags}, '%')
+            </if>
+            <if test="queryParams.aiScene != null and queryParams.aiScene != ''">
+                AND p.ai_scene LIKE CONCAT('%', #{queryParams.aiScene}, '%')
+            </if>
+            <if test="queryParams.description != null and queryParams.description != ''">
+                AND p.description LIKE CONCAT('%', #{queryParams.description}, '%')
+            </if>
+            <if test="queryParams.isFavorite != null">
+                AND p.is_favorite = #{queryParams.isFavorite}
+            </if>
+            <if test="queryParams.albumName != null and queryParams.albumName != ''">
+                AND a.name LIKE CONCAT('%', #{queryParams.albumName}, '%')
+            </if>
+        </where>
+        ORDER BY p.create_time DESC
+    </select>
+</mapper>
