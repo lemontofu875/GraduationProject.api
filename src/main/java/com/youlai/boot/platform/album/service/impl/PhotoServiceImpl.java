@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -113,6 +114,11 @@ public class PhotoServiceImpl implements PhotoService {
             throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "照片不存在");
         }
         return photoMapper.deleteById(id) > 0;
+    }
+
+    @Override
+    public List<String> listAiScenes() {
+        return photoMapper.listAiScenes();
     }
 
     private void validateParams(MultipartFile file, Long albumId) {

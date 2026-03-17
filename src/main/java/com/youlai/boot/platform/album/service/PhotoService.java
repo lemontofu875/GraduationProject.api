@@ -6,6 +6,8 @@ import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * 照片服务
  *
@@ -46,4 +48,11 @@ public interface PhotoService {
      * @return 是否删除成功
      */
     boolean deletePhoto(Long id);
+
+    /**
+     * 场景分类列表（用于筛选下拉框）
+     *
+     * @return 场景分类列表
+     */
+    List<String> listAiScenes();
 }

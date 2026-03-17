@@ -69,4 +69,15 @@
         </where>
         ORDER BY p.create_time DESC
     </select>
+
+    <!-- 场景分类下拉列表（去重、非空） -->
+    <select id="listAiScenes" resultType="java.lang.String">
+        SELECT DISTINCT
+            p.ai_scene
+        FROM photo p
+        WHERE
+            p.ai_scene IS NOT NULL
+            AND p.ai_scene != ''
+        ORDER BY p.ai_scene ASC
+    </select>
 </mapper>

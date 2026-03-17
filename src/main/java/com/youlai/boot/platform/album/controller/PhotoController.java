@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * 照片上传接口（智能相册核心）
  *
@@ -41,6 +43,12 @@ public class PhotoController {
     public PageResult<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams) {
         IPage<PhotoPageVO> result = photoService.getPhotoPage(queryParams);
         return PageResult.success(result);
+    }
+
+    @GetMapping("/scenes")
+    @Operation(summary = "场景分类下拉列表", description = "返回已存在的 AI 场景分类列表（去重），用于筛选下拉框")
+    public Result<List<String>> listAiScenes() {
+        return Result.success(photoService.listAiScenes());
     }
 
     @PostMapping("/upload")
