@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,5 +67,15 @@ public class PhotoController {
     ) {
         photoService.updateFavorite(photoId, isFavorite);
         return Result.success();
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除照片", description = "根据照片ID删除照片")
+    public Result<?> deletePhoto(
+            @Parameter(name = "id", description = "照片ID", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") Long id
+    ) {
+        boolean ok = photoService.deletePhoto(id);
+        return Result.judge(ok);
     }
 }

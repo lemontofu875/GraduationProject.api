@@ -105,6 +105,16 @@ public class PhotoServiceImpl implements PhotoService {
         return photoMapper.getPhotoPage(page, queryParams);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean deletePhoto(Long id) {
+        Photo photo = photoMapper.selectById(id);
+        if (photo == null) {
+            throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "照片不存在");
+        }
+        return photoMapper.deleteById(id) > 0;
+    }
+
     private void validateParams(MultipartFile file, Long albumId) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY, "照片文件不能为空");

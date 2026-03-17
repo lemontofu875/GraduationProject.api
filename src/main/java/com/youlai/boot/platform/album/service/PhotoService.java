@@ -38,4 +38,12 @@ public interface PhotoService {
      * @return 照片分页列表（含相册名称及完整照片信息）
      */
     IPage<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams);
+
+    /**
+     * 删除照片
+     *
+     * @param id 照片ID
+     * @return 是否删除成功
+     */
+    boolean deletePhoto(Long id);
 }
