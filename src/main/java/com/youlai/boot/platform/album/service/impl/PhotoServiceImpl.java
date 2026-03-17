@@ -84,6 +84,17 @@ public class PhotoServiceImpl implements PhotoService {
         return buildPhotoUploadVO(photo);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateFavorite(Long photoId, Boolean isFavorite) {
+        Photo photo = photoMapper.selectById(photoId);
+        if (photo == null) {
+            throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "照片不存在");
+        }
+        photo.setIsFavorite(isFavorite);
+        photoMapper.updateById(photo);
+    }
+
     private void validateParams(MultipartFile file, Long albumId) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY, "照片文件不能为空");

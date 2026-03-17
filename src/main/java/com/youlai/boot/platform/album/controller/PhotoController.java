@@ -9,7 +9,12 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -37,5 +42,17 @@ public class PhotoController {
     ) {
         PhotoUploadVO vo = photoService.uploadPhoto(file, albumId, description);
         return Result.success(vo, "上传成功");
+    }
+
+    @PostMapping("/{photoId}/favorite")
+    @Operation(summary = "设置照片收藏状态", description = "根据照片ID设置是否收藏")
+    public Result<Void> updateFavorite(
+            @Parameter(name = "photoId", description = "照片ID", required = true, in = ParameterIn.PATH)
+            @PathVariable("photoId") Long photoId,
+            @Parameter(name = "isFavorite", description = "是否收藏 true=收藏 false=取消收藏", required = true, in = ParameterIn.QUERY)
+            @RequestParam("isFavorite") Boolean isFavorite
+    ) {
+        photoService.updateFavorite(photoId, isFavorite);
+        return Result.success();
     }
 }

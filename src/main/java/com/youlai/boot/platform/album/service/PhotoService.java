@@ -19,4 +19,12 @@ public interface PhotoService {
      * @return 上传结果
      */
     PhotoUploadVO uploadPhoto(MultipartFile file, Long albumId, String description);
+
+    /**
+     * 更新照片收藏状态
+     *
+     * @param photoId   照片ID
+     * @param isFavorite 是否收藏
+     */
+    void updateFavorite(Long photoId, Boolean isFavorite);
 }
