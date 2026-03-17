@@ -29,6 +29,15 @@ public interface AlbumService {
     List<AlbumOptionVO> listAlbumOptions();
 
     /**
+     * 编辑相册（修改相册名称）
+     *
+     * @param id   相册ID
+     * @param form 相册表单（名称）
+     * @return 更新后的相册信息
+     */
+    AlbumVO updateAlbum(Long id, AlbumForm form);
+
+    /**
      * 删除相册
      *
      * @param id 相册ID

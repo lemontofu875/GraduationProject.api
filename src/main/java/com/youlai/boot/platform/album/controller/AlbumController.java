@@ -33,6 +33,16 @@ public class AlbumController {
         return Result.success(vo, "创建成功");
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "编辑相册", description = "根据相册ID修改相册名称")
+    public Result<AlbumVO> updateAlbum(
+            @PathVariable Long id,
+            @Valid @RequestBody AlbumForm form
+    ) {
+        AlbumVO vo = albumService.updateAlbum(id, form);
+        return Result.success(vo, "修改成功");
+    }
+
     @GetMapping("/options")
     @Operation(summary = "相册下拉列表", description = "返回所有相册的 id 与名称，供前端下拉框使用")
     public Result<List<AlbumOptionVO>> listAlbumOptions() {

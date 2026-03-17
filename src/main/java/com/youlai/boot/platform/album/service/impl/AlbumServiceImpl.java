@@ -53,6 +53,18 @@ public class AlbumServiceImpl implements AlbumService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public AlbumVO updateAlbum(Long id, AlbumForm form) {
+        Album album = albumMapper.selectById(id);
+        if (album == null) {
+            throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "相册不存在");
+        }
+        album.setName(form.getName().trim());
+        albumMapper.updateById(album);
+        return toVO(album);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean deleteAlbum(Long id) {
         Album album = albumMapper.selectById(id);
         if (album == null) {
