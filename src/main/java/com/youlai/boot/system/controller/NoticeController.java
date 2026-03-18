@@ -126,4 +126,13 @@ public class NoticeController {
         IPage<UserNoticePageVO> result = noticeService.getMyNoticePage(queryParams);
         return PageResult.success(result);
     }
+
+    @Operation(summary = "获取我的通知公告分页列表（请求体传参）")
+    @PostMapping("/my-page")
+    public PageResult<UserNoticePageVO> getMyNoticePageByBody(
+            @RequestBody NoticePageQuery queryParams
+    ) {
+        IPage<UserNoticePageVO> result = noticeService.getMyNoticePage(queryParams);
+        return PageResult.success(result);
+    }
 }
