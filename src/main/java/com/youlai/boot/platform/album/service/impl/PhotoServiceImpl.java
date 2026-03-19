@@ -25,8 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * 照片服务实现
@@ -119,6 +123,24 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public List<String> listAiScenes() {
         return photoMapper.listAiScenes();
+    }
+
+    @Override
+    public List<String> listAiTags() {
+        List<String> rawTags = photoMapper.listAiTagsRaw();
+        if (rawTags == null || rawTags.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // ai_tags 为“逗号分隔”字符串：英文逗号/中文逗号都兼容；拆分、去空、去重、排序
+        TreeSet<String> tagSet = rawTags.stream()
+                .filter(StrUtil::isNotBlank)
+                .flatMap(tags -> Arrays.stream(tags.split("[,，]")))
+                .map(String::trim)
+                .filter(StrUtil::isNotBlank)
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        return tagSet.stream().toList();
     }
 
     private void validateParams(MultipartFile file, Long albumId) {

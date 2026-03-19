@@ -33,4 +33,11 @@ public interface PhotoMapper extends BaseMapper<Photo> {
      * @return 场景分类列表
      */
     List<String> listAiScenes();
+
+    /**
+     * 获取 AI 标签原始列表（逗号分隔字符串）
+     *
+     * @return AI 标签原始字符串列表
+     */
+    List<String> listAiTagsRaw();
 }

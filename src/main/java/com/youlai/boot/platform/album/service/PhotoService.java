@@ -55,4 +55,13 @@ public interface PhotoService {
      * @return 场景分类列表
      */
     List<String> listAiScenes();
+
+    /**
+     * AI 标签列表（用于筛选下拉框）
+     * <p>
+     * 说明：一个图片可能有多个标签，后端会将逗号分隔的标签拆分后去重返回
+     *
+     * @return AI 标签列表
+     */
+    List<String> listAiTags();
 }

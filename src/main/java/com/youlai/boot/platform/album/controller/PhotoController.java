@@ -51,6 +51,12 @@ public class PhotoController {
         return Result.success(photoService.listAiScenes());
     }
 
+    @GetMapping("/tags")
+    @Operation(summary = "AI标签下拉列表", description = "返回已存在的 AI 标签列表（拆分、去重），用于筛选下拉框")
+    public Result<List<String>> listAiTags() {
+        return Result.success(photoService.listAiTags());
+    }
+
     @PostMapping("/upload")
     @Operation(summary = "照片上传", description = "上传照片、解析EXIF、调用大模型分析内容、存储到数据库")
     public Result<PhotoUploadVO> uploadPhoto(

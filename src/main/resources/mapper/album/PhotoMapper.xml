@@ -80,4 +80,14 @@
             AND p.ai_scene != ''
         ORDER BY p.ai_scene ASC
     </select>
+
+    <!-- AI 标签原始列表（非空） -->
+    <select id="listAiTagsRaw" resultType="java.lang.String">
+        SELECT
+            p.ai_tags
+        FROM photo p
+        WHERE
+            p.ai_tags IS NOT NULL
+            AND p.ai_tags != ''
+    </select>
 </mapper>
