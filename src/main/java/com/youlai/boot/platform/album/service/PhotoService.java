@@ -1,6 +1,7 @@
 package com.youlai.boot.platform.album.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.youlai.boot.platform.album.model.form.PhotoUpdateForm;
 import com.youlai.boot.platform.album.model.query.PhotoPageQuery;
 import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
@@ -32,6 +33,15 @@ public interface PhotoService {
      * @param isFavorite 是否收藏
      */
     void updateFavorite(Long photoId, Boolean isFavorite);
+
+    /**
+     * 更新照片文案信息：AI 描述、AI 标签、AI 场景、用户备注（可部分更新）
+     *
+     * @param id   照片ID
+     * @param form 编辑内容；字段为 null 表示不修改该字段，传空字符串表示清空
+     * @return 更新后的照片概要信息
+     */
+    PhotoUploadVO updatePhoto(Long id, PhotoUpdateForm form);
 
     /**
      * 分页查询照片，支持多条件筛选；不传筛选项时返回所有照片

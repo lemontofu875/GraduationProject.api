@@ -38,9 +38,9 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
     private String model;
 
     private static final String SYSTEM_PROMPT = "你是一个专业的图片分析助手。请分析用户提供的图片，以JSON格式返回，包含以下字段：" +
-            "description(详细描述图片内容，如风景、人物、天气、颜色、标志性建筑等)、" +
+            "description(详细描述图片内容，如风景、人物、天气、颜色、标志性建筑等；如果是cosplay照片请识别出cos的角色；如果照片里面有标志性建筑，如广州塔、黄鹤楼也请描述一下)、" +
             "tags(用逗号分隔的标签，如：海边,沙滩,小狗,蓝天)、" +
-            "scene(场景分类，如：风景、人像、美食、建筑、动物等)。只返回JSON，不要其他文字注意用中文。";
+            "scene(场景分类，如：风景、人像、美食、建筑、动物等)。只返回JSON，不要其他文字注意用中文，。";
 
     private static final String USER_PROMPT = "请分析这张图片，返回JSON格式：{\"description\":\"...\",\"tags\":\"...\",\"scene\":\"...\"}";
 

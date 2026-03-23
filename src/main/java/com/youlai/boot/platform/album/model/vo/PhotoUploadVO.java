@@ -39,6 +39,9 @@ public class PhotoUploadVO {
     @Schema(description = "AI分析-场景分类")
     private String aiScene;
 
+    @Schema(description = "用户备注")
+    private String description;
+
     @Schema(description = "是否收藏")
     private Boolean isFavorite;
 

@@ -9,6 +9,7 @@ import com.youlai.boot.platform.album.model.entity.Photo;
 import com.youlai.boot.platform.album.model.vo.ExifInfoVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.youlai.boot.platform.album.model.form.PhotoUpdateForm;
 import com.youlai.boot.platform.album.model.query.PhotoPageQuery;
 import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
@@ -105,6 +106,33 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public PhotoUploadVO updatePhoto(Long id, PhotoUpdateForm form) {
+        if (form == null) {
+            throw new BusinessException(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY, "请求体不能为空");
+        }
+        Photo photo = photoMapper.selectById(id);
+        if (photo == null) {
+            throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "照片不存在");
+        }
+        // 仅更新请求体中出现的字段：null 表示不修改；空字符串表示清空为 null
+        if (form.getAiDescription() != null) {
+            photo.setAiDescription(StrUtil.isBlank(form.getAiDescription()) ? null : form.getAiDescription().trim());
+        }
+        if (form.getAiTags() != null) {
+            photo.setAiTags(StrUtil.isBlank(form.getAiTags()) ? null : form.getAiTags().trim());
+        }
+        if (form.getAiScene() != null) {
+            photo.setAiScene(StrUtil.isBlank(form.getAiScene()) ? null : form.getAiScene().trim());
+        }
+        if (form.getDescription() != null) {
+            photo.setDescription(StrUtil.isBlank(form.getDescription()) ? null : form.getDescription().trim());
+        }
+        photoMapper.updateById(photo);
+        return buildPhotoUploadVO(photo);
+    }
+
+    @Override
     public IPage<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams) {
         Page<PhotoPageVO> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
         return photoMapper.getPhotoPage(page, queryParams);
@@ -176,6 +204,7 @@ public class PhotoServiceImpl implements PhotoService {
         vo.setAiDescription(photo.getAiDescription());
         vo.setAiTags(photo.getAiTags());
         vo.setAiScene(photo.getAiScene());
+        vo.setDescription(photo.getDescription());
         vo.setIsFavorite(photo.getIsFavorite());
         vo.setUploadTime(photo.getCreateTime());
         return vo;

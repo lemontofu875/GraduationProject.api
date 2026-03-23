@@ -3,6 +3,7 @@ package com.youlai.boot.platform.album.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.youlai.boot.core.web.PageResult;
 import com.youlai.boot.core.web.Result;
+import com.youlai.boot.platform.album.model.form.PhotoUpdateForm;
 import com.youlai.boot.platform.album.model.query.PhotoPageQuery;
 import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
@@ -12,11 +13,14 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -55,6 +59,17 @@ public class PhotoController {
     @Operation(summary = "AI标签下拉列表", description = "返回已存在的 AI 标签列表（拆分、去重），用于筛选下拉框")
     public Result<List<String>> listAiTags() {
         return Result.success(photoService.listAiTags());
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "编辑照片信息", description = "可修改 AI 描述、AI 标签、AI 场景、用户备注；未传或为 null 的字段不修改，传空字符串可清空")
+    public Result<PhotoUploadVO> updatePhoto(
+            @Parameter(name = "id", description = "照片ID", required = true, in = ParameterIn.PATH)
+            @PathVariable("id") Long id,
+            @Valid @RequestBody PhotoUpdateForm form
+    ) {
+        PhotoUploadVO vo = photoService.updatePhoto(id, form);
+        return Result.success(vo, "修改成功");
     }
 
     @PostMapping("/upload")
