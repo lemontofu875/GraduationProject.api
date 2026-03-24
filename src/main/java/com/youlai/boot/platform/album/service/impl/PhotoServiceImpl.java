@@ -6,6 +6,7 @@ import com.youlai.boot.core.web.ResultCode;
 import com.youlai.boot.platform.album.model.dto.AiImageAnalysisDTO;
 import com.youlai.boot.platform.album.model.entity.Album;
 import com.youlai.boot.platform.album.model.entity.Photo;
+import com.youlai.boot.platform.album.model.entity.RecyclePhoto;
 import com.youlai.boot.platform.album.model.vo.ExifInfoVO;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,6 +19,7 @@ import com.youlai.boot.platform.album.service.ExifParseService;
 import com.youlai.boot.platform.album.service.PhotoService;
 import com.youlai.boot.platform.album.mapper.AlbumMapper;
 import com.youlai.boot.platform.album.mapper.PhotoMapper;
+import com.youlai.boot.platform.album.mapper.RecyclePhotoMapper;
 import com.youlai.boot.platform.file.model.FileInfo;
 import com.youlai.boot.platform.file.service.FileService;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final AiImageAnalysisService aiImageAnalysisService;
     private final AlbumMapper albumMapper;
     private final PhotoMapper photoMapper;
+    private final RecyclePhotoMapper recyclePhotoMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -145,6 +148,20 @@ public class PhotoServiceImpl implements PhotoService {
         if (photo == null) {
             throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "照片不存在");
         }
+        RecyclePhoto recyclePhoto = new RecyclePhoto();
+        recyclePhoto.setPhotoId(photo.getId());
+        recyclePhoto.setAlbumId(photo.getAlbumId());
+        recyclePhoto.setOriginalName(photo.getOriginalName());
+        recyclePhoto.setFilePath(photo.getFilePath());
+        recyclePhoto.setFileUrl(photo.getFileUrl());
+        recyclePhoto.setFileSize(photo.getFileSize());
+        recyclePhoto.setExifInfo(photo.getExifInfo());
+        recyclePhoto.setAiDescription(photo.getAiDescription());
+        recyclePhoto.setAiTags(photo.getAiTags());
+        recyclePhoto.setAiScene(photo.getAiScene());
+        recyclePhoto.setDescription(photo.getDescription());
+        recyclePhoto.setIsFavorite(photo.getIsFavorite());
+        recyclePhotoMapper.insert(recyclePhoto);
         return photoMapper.deleteById(id) > 0;
     }
 

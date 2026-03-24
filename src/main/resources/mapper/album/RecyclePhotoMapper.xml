@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.youlai.boot.platform.album.mapper.RecyclePhotoMapper">
+
+    <resultMap id="RecyclePhotoPageVOMap" type="com.youlai.boot.platform.album.model.vo.RecyclePhotoPageVO">
+        <id column="id" property="id"/>
+        <result column="photo_id" property="photoId"/>
+        <result column="album_id" property="albumId"/>
+        <result column="album_name" property="albumName"/>
+        <result column="original_name" property="originalName"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="deleted_time" property="deletedTime"/>
+    </resultMap>
+
+    <resultMap id="RecyclePhotoDetailVOMap" type="com.youlai.boot.platform.album.model.vo.RecyclePhotoDetailVO">
+        <id column="id" property="id"/>
+        <result column="photo_id" property="photoId"/>
+        <result column="album_id" property="albumId"/>
+        <result column="album_name" property="albumName"/>
+        <result column="original_name" property="originalName"/>
+        <result column="file_path" property="filePath"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="exif_info" property="exifInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="ai_description" property="aiDescription"/>
+        <result column="ai_tags" property="aiTags"/>
+        <result column="ai_scene" property="aiScene"/>
+        <result column="description" property="description"/>
+        <result column="is_favorite" property="isFavorite"/>
+        <result column="deleted_time" property="deletedTime"/>
+    </resultMap>
+
+    <select id="getRecyclePhotoPage" resultMap="RecyclePhotoPageVOMap">
+        SELECT
+            rb.id,
+            rb.photo_id,
+            rb.album_id,
+            a.name AS album_name,
+            rb.original_name,
+            rb.file_url,
+            rb.file_size,
+            rb.deleted_time
+        FROM photo_recycle_bin rb
+        LEFT JOIN album a ON a.id = rb.album_id
+        ORDER BY rb.deleted_time DESC, rb.id DESC
+    </select>
+
+    <select id="getRecyclePhotoDetail" resultMap="RecyclePhotoDetailVOMap">
+        SELECT
+            rb.id,
+            rb.photo_id,
+            rb.album_id,
+            a.name AS album_name,
+            rb.original_name,
+            rb.file_path,
+            rb.file_url,
+            rb.file_size,
+            rb.exif_info,
+            rb.ai_description,
+            rb.ai_tags,
+            rb.ai_scene,
+            rb.description,
+            rb.is_favorite,
+            rb.deleted_time
+        FROM photo_recycle_bin rb
+        LEFT JOIN album a ON a.id = rb.album_id
+        WHERE rb.id = #{id}
+    </select>
+</mapper>

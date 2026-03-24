@@ -661,6 +661,33 @@ CREATE TABLE `photo` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='照片表';
 
+-- ----------------------------
+-- 智能相册 - 回收站照片表
+-- ----------------------------
+DROP TABLE IF EXISTS `photo_recycle_bin`;
+CREATE TABLE `photo_recycle_bin` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `photo_id` bigint NOT NULL COMMENT '原照片ID',
+  `album_id` bigint NOT NULL COMMENT '原所属相册ID',
+  `original_name` varchar(255) NOT NULL COMMENT '原始文件名',
+  `file_path` varchar(500) NOT NULL COMMENT '存储路径',
+  `file_url` varchar(1000) NOT NULL COMMENT '访问URL',
+  `file_size` bigint DEFAULT NULL COMMENT '文件大小(字节)',
+  `exif_info` json DEFAULT NULL COMMENT 'EXIF信息(光圈/快门/ISO/拍摄时间/分辨率等)',
+  `ai_description` varchar(1000) DEFAULT NULL COMMENT 'AI分析-图片描述',
+  `ai_tags` varchar(500) DEFAULT NULL COMMENT 'AI分析-标签(逗号分隔)',
+  `ai_scene` varchar(100) DEFAULT NULL COMMENT 'AI分析-场景分类',
+  `description` varchar(500) DEFAULT NULL COMMENT '用户备注',
+  `is_favorite` tinyint(1) DEFAULT 0 COMMENT '是否收藏(0-否 1-是)',
+  `deleted_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '删除时间',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_photo_id` (`photo_id`),
+  KEY `idx_album_id` (`album_id`),
+  KEY `idx_deleted_time` (`deleted_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='回收站照片表';
+
 -- 默认相册（用于测试）
 INSERT INTO `album` (`id`, `name`, `user_id`, `cover_url`) VALUES (1, '默认相册', 1, NULL);
 

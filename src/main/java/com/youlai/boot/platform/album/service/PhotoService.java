@@ -52,10 +52,10 @@ public interface PhotoService {
     IPage<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams);
 
     /**
-     * 删除照片
+     * 删除照片（放入回收站）
      *
      * @param id 照片ID
-     * @return 是否删除成功
+     * @return 是否操作成功
      */
     boolean deletePhoto(Long id);
 

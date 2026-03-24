@@ -99,7 +99,7 @@ public class PhotoController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "删除照片", description = "根据照片ID删除照片")
+    @Operation(summary = "删除照片", description = "根据照片ID将照片放入回收站")
     public Result<?> deletePhoto(
             @Parameter(name = "id", description = "照片ID", required = true, in = ParameterIn.PATH)
             @PathVariable("id") Long id
