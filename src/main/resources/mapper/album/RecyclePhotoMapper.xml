@@ -10,6 +10,7 @@
         <result column="original_name" property="originalName"/>
         <result column="file_url" property="fileUrl"/>
         <result column="file_size" property="fileSize"/>
+        <result column="ai_scene" property="aiScene"/>
         <result column="deleted_time" property="deletedTime"/>
     </resultMap>
 
@@ -40,6 +41,7 @@
             rb.original_name,
             rb.file_url,
             rb.file_size,
+            rb.ai_scene,
             rb.deleted_time
         FROM photo_recycle_bin rb
         LEFT JOIN album a ON a.id = rb.album_id

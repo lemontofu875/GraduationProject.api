@@ -36,6 +36,9 @@ public class RecyclePhotoPageVO {
     @Schema(description = "文件大小(字节)")
     private Long fileSize;
 
+    @Schema(description = "AI分析-场景分类")
+    private String aiScene;
+
     @Schema(description = "删除时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime deletedTime;
