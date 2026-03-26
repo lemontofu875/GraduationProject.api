@@ -23,11 +23,11 @@ public class PhotoPageQuery extends BasePageQuery {
     @Schema(description = "AI分析-图片描述（模糊匹配）")
     private String aiDescription;
 
-    @Schema(description = "AI分析-标签（模糊匹配，逗号分隔存储）")
-    private String aiTags;
+    @Schema(description = "AI分析-标签（多选，命中任一项即匹配）")
+    private List<String> aiTags;
 
-    @Schema(description = "AI分析-场景分类（模糊匹配）")
-    private String aiScene;
+    @Schema(description = "AI分析-场景分类（多选，命中任一项即匹配）")
+    private List<String> aiScene;
 
     @Schema(description = "用户备注（模糊匹配）")
     private String description;

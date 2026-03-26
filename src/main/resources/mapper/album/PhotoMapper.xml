@@ -51,11 +51,23 @@
             <if test="queryParams.aiDescription != null and queryParams.aiDescription != ''">
                 AND p.ai_description LIKE CONCAT('%', #{queryParams.aiDescription}, '%')
             </if>
-            <if test="queryParams.aiTags != null and queryParams.aiTags != ''">
-                AND p.ai_tags LIKE CONCAT('%', #{queryParams.aiTags}, '%')
+            <if test="queryParams.aiTags != null and queryParams.aiTags.size() > 0">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <foreach collection="queryParams.aiTags" item="tag">
+                        <if test="tag != null and tag != ''">
+                            OR p.ai_tags LIKE CONCAT('%', #{tag}, '%')
+                        </if>
+                    </foreach>
+                </trim>
             </if>
-            <if test="queryParams.aiScene != null and queryParams.aiScene != ''">
-                AND p.ai_scene LIKE CONCAT('%', #{queryParams.aiScene}, '%')
+            <if test="queryParams.aiScene != null and queryParams.aiScene.size() > 0">
+                <trim prefix="AND (" suffix=")" prefixOverrides="OR">
+                    <foreach collection="queryParams.aiScene" item="scene">
+                        <if test="scene != null and scene != ''">
+                            OR p.ai_scene LIKE CONCAT('%', #{scene}, '%')
+                        </if>
+                    </foreach>
+                </trim>
             </if>
             <if test="queryParams.description != null and queryParams.description != ''">
                 AND p.description LIKE CONCAT('%', #{queryParams.description}, '%')
