@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.youlai.boot.platform.album.model.dto.AiImageAnalysisDTO;
+import com.youlai.boot.platform.album.model.dto.PhotoReviewAnalysisDTO;
 import com.youlai.boot.platform.album.service.AiImageAnalysisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * AI 图片分析服务实现（调用 yunwu.ai / OpenAI 兼容接口）
@@ -44,6 +46,14 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
 
     private static final String USER_PROMPT = "请分析这张图片，返回JSON格式：{\"description\":\"...\",\"tags\":\"...\",\"scene\":\"...\"}";
 
+    private static final String REVIEW_SYSTEM_PROMPT = "你是一名专业摄影点评助手。请基于照片内容进行点评，仅返回JSON，包含字段：" +
+            "summary(照片概述)、advantages(优点)、disadvantages(缺点)、rating(照片评级)。" +
+            "rating 必须且只能是以下五个值之一：杰出、优秀、良好、有待改进、烂片一张。请使用中文。";
+
+    private static final String REVIEW_USER_PROMPT = "请点评这张照片，返回JSON格式：{\"summary\":\"...\",\"advantages\":\"...\",\"disadvantages\":\"...\",\"rating\":\"杰出|优秀|良好|有待改进|烂片一张\"}";
+
+    private static final Set<String> ALLOWED_RATINGS = Set.of("杰出", "优秀", "良好", "有待改进", "烂片一张");
+
     @Override
     public AiImageAnalysisDTO analyzeImage(String imageUrl, byte[] imageBytes, String mimeType) {
         AiImageAnalysisDTO result = new AiImageAnalysisDTO();
@@ -61,7 +71,7 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
             log.info("检测到本地/内网图片地址，将使用 base64 发送图片给大模型");
         }
         try {
-            String responseBody = callChatCompletions(imageUrl, imageBytes, mimeType);
+            String responseBody = callChatCompletions(imageUrl, imageBytes, mimeType, SYSTEM_PROMPT, USER_PROMPT);
             if (StrUtil.isNotBlank(responseBody)) {
                 parseAndFill(result, responseBody);
             } else {
@@ -73,6 +83,35 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
         return result;
     }
 
+    @Override
+    public PhotoReviewAnalysisDTO analyzePhotoReview(String imageUrl, byte[] imageBytes, String mimeType) {
+        PhotoReviewAnalysisDTO result = new PhotoReviewAnalysisDTO();
+        if (StrUtil.isBlank(apiKey)) {
+            log.warn("AI 点评未执行：未配置 album.ai.api-key 或环境变量 ALBUM_AI_API_KEY");
+            return result;
+        }
+        boolean useBase64 = isLocalOrPrivateUrl(imageUrl) && imageBytes != null && imageBytes.length > 0;
+        if (!useBase64 && StrUtil.isBlank(imageUrl)) {
+            log.warn("AI 点评未执行：imageUrl 为空且无 imageBytes");
+            return result;
+        }
+        if (useBase64) {
+            log.info("检测到本地/内网图片地址，将使用 base64 发送图片给大模型（摄影点评）");
+        }
+        try {
+            String responseBody = callChatCompletions(imageUrl, imageBytes, mimeType, REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT);
+            if (StrUtil.isNotBlank(responseBody)) {
+                parseAndFillReview(result, responseBody);
+            } else {
+                log.warn("AI 点评返回内容为空，请检查接口与模型是否支持视觉能力");
+            }
+        } catch (Exception e) {
+            log.error("AI 照片点评失败: {}", e.getMessage(), e);
+        }
+        result.setRating(normalizeRating(result.getRating()));
+        return result;
+    }
+
     /** 判断是否为本地或内网地址（云端无法访问） */
     private boolean isLocalOrPrivateUrl(String url) {
         if (StrUtil.isBlank(url)) return true;
@@ -81,7 +120,7 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
     }
 
     @SuppressWarnings("unchecked")
-    private String callChatCompletions(String imageUrl, byte[] imageBytes, String mimeType) {
+    private String callChatCompletions(String imageUrl, byte[] imageBytes, String mimeType, String systemPrompt, String userPrompt) {
         String imageInput;
         if (imageBytes != null && imageBytes.length > 0 && isLocalOrPrivateUrl(imageUrl)) {
             String base64 = Base64.getEncoder().encodeToString(imageBytes);
@@ -93,7 +132,7 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
 
         Map<String, Object> userContent = Map.of(
                 "type", "text",
-                "text", USER_PROMPT
+                "text", userPrompt
         );
         Map<String, Object> imageContent = Map.of(
                 "type", "image_url",
@@ -104,7 +143,7 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
                 "model", model,
                 "stream", false,
                 "messages", List.of(
-                        Map.of("role", "system", "content", SYSTEM_PROMPT),
+                        Map.of("role", "system", "content", systemPrompt),
                         Map.of("role", "user", "content", List.of(userContent, imageContent))
                 )
         );
@@ -151,5 +190,35 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
             log.debug("解析 AI 返回 JSON 失败，使用原始文本: {}", e.getMessage());
             dto.setDescription(jsonStr);
         }
+    }
+
+    private void parseAndFillReview(PhotoReviewAnalysisDTO dto, String jsonStr) {
+        try {
+            String clean = jsonStr.trim();
+            if (clean.startsWith("```")) {
+                int start = clean.indexOf("\n") + 1;
+                int end = clean.lastIndexOf("```");
+                clean = end > start ? clean.substring(start, end) : clean.substring(start);
+            }
+            JSONObject obj = JSONUtil.parseObj(clean);
+            dto.setSummary(obj.getStr("summary"));
+            dto.setAdvantages(obj.getStr("advantages"));
+            dto.setDisadvantages(obj.getStr("disadvantages"));
+            dto.setRating(obj.getStr("rating"));
+        } catch (Exception e) {
+            log.debug("解析 AI 点评 JSON 失败，使用原始文本: {}", e.getMessage());
+            dto.setSummary(jsonStr);
+        }
+    }
+
+    private String normalizeRating(String rating) {
+        if (StrUtil.isBlank(rating)) {
+            return "有待改进";
+        }
+        String trimmed = rating.trim();
+        if (ALLOWED_RATINGS.contains(trimmed)) {
+            return trimmed;
+        }
+        return "有待改进";
     }
 }

@@ -688,6 +688,31 @@ CREATE TABLE `photo_recycle_bin` (
   KEY `idx_deleted_time` (`deleted_time`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='回收站照片表';
 
+-- ----------------------------
+-- 智能相册 - 照片点评记录表
+-- ----------------------------
+DROP TABLE IF EXISTS `photo_review`;
+CREATE TABLE `photo_review` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `album_id` bigint NOT NULL COMMENT '所属相册ID',
+  `original_name` varchar(255) NOT NULL COMMENT '原始文件名',
+  `file_path` varchar(500) NOT NULL COMMENT '存储路径',
+  `file_url` varchar(1000) NOT NULL COMMENT '访问URL',
+  `file_size` bigint DEFAULT NULL COMMENT '文件大小(字节)',
+  `exif_info` json DEFAULT NULL COMMENT 'EXIF信息(光圈/快门/ISO/拍摄时间/分辨率等)',
+  `review_summary` varchar(1000) DEFAULT NULL COMMENT '照片概述',
+  `review_advantages` varchar(1000) DEFAULT NULL COMMENT '优点',
+  `review_disadvantages` varchar(1000) DEFAULT NULL COMMENT '缺点',
+  `review_rating` varchar(20) NOT NULL COMMENT '照片评级(杰出/优秀/良好/有待改进/烂片一张)',
+  `review_time` datetime NOT NULL COMMENT '点评时间',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_album_id` (`album_id`),
+  KEY `idx_review_time` (`review_time`),
+  KEY `idx_review_rating` (`review_rating`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='照片点评记录表';
+
 -- 默认相册（用于测试）
 INSERT INTO `album` (`id`, `name`, `user_id`, `cover_url`) VALUES (1, '默认相册', 1, NULL);
 

@@ -1,6 +1,7 @@
 package com.youlai.boot.platform.album.service;
 
 import com.youlai.boot.platform.album.model.dto.AiImageAnalysisDTO;
+import com.youlai.boot.platform.album.model.dto.PhotoReviewAnalysisDTO;
 
 /**
  * AI 图片分析服务（调用大模型分析图片内容）
@@ -18,4 +19,14 @@ public interface AiImageAnalysisService {
      * @return 分析结果，失败时返回空描述
      */
     AiImageAnalysisDTO analyzeImage(String imageUrl, byte[] imageBytes, String mimeType);
+
+    /**
+     * 分析图片并生成摄影点评（概述、优点、缺点、评级）
+     *
+     * @param imageUrl   图片 URL（若为 localhost 等内网地址，云端无法访问，需传 imageBytes 用 base64）
+     * @param imageBytes 图片字节（可选）；当 URL 为本地/内网时传入，将以 base64 发送给大模型
+     * @param mimeType   图片 MIME 类型（如 image/jpeg），用于 base64 时
+     * @return 点评结果
+     */
+    PhotoReviewAnalysisDTO analyzePhotoReview(String imageUrl, byte[] imageBytes, String mimeType);
 }
