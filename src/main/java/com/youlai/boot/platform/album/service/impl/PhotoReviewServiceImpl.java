@@ -5,10 +5,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.core.exception.BusinessException;
 import com.youlai.boot.core.web.ResultCode;
-import com.youlai.boot.platform.album.mapper.AlbumMapper;
 import com.youlai.boot.platform.album.mapper.PhotoReviewMapper;
 import com.youlai.boot.platform.album.model.dto.PhotoReviewAnalysisDTO;
-import com.youlai.boot.platform.album.model.entity.Album;
 import com.youlai.boot.platform.album.model.entity.PhotoReview;
 import com.youlai.boot.platform.album.model.query.PhotoReviewPageQuery;
 import com.youlai.boot.platform.album.model.vo.ExifInfoVO;
@@ -42,13 +40,12 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final FileService fileService;
     private final ExifParseService exifParseService;
     private final AiImageAnalysisService aiImageAnalysisService;
-    private final AlbumMapper albumMapper;
     private final PhotoReviewMapper photoReviewMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PhotoReviewUploadVO uploadPhotoReview(MultipartFile file, Long albumId) {
-        validateParams(file, albumId);
+    public PhotoReviewUploadVO uploadPhotoReview(MultipartFile file) {
+        validateParams(file);
 
         // 1. 上传文件
         FileInfo fileInfo = fileService.uploadFile(file);
@@ -70,7 +67,6 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         // 4. 入库
         LocalDateTime reviewTime = LocalDateTime.now();
         PhotoReview review = new PhotoReview();
-        review.setAlbumId(albumId);
         review.setOriginalName(file.getOriginalFilename());
         review.setFilePath(fileInfo.getPath());
         review.setFileUrl(fileInfo.getUrl());
@@ -111,12 +107,9 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         return photoReviewMapper.deleteById(id) > 0;
     }
 
-    private void validateParams(MultipartFile file, Long albumId) {
+    private void validateParams(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new BusinessException(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY, "照片文件不能为空");
-        }
-        if (albumId == null) {
-            throw new BusinessException(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY, "相册ID不能为空");
         }
 
         String originalFilename = file.getOriginalFilename();
@@ -132,17 +125,11 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         if (!ALLOWED_EXTENSIONS.contains(ext)) {
             throw new BusinessException(ResultCode.UPLOAD_FILE_TYPE_MISMATCH, "仅支持 jpg/png/webp 格式");
         }
-
-        Album album = albumMapper.selectById(albumId);
-        if (album == null) {
-            throw new BusinessException(ResultCode.USER_RESOURCE_NOT_FOUND, "相册不存在");
-        }
     }
 
     private PhotoReviewUploadVO buildUploadVO(PhotoReview review) {
         PhotoReviewUploadVO vo = new PhotoReviewUploadVO();
         vo.setId(review.getId());
-        vo.setAlbumId(review.getAlbumId());
         vo.setOriginalName(review.getOriginalName());
         vo.setFileUrl(review.getFileUrl());
         vo.setFileSize(review.getFileSize());

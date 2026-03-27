@@ -694,7 +694,6 @@ CREATE TABLE `photo_recycle_bin` (
 DROP TABLE IF EXISTS `photo_review`;
 CREATE TABLE `photo_review` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `album_id` bigint NOT NULL COMMENT '所属相册ID',
   `original_name` varchar(255) NOT NULL COMMENT '原始文件名',
   `file_path` varchar(500) NOT NULL COMMENT '存储路径',
   `file_url` varchar(1000) NOT NULL COMMENT '访问URL',
@@ -708,7 +707,6 @@ CREATE TABLE `photo_review` (
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  KEY `idx_album_id` (`album_id`),
   KEY `idx_review_time` (`review_time`),
   KEY `idx_review_rating` (`review_rating`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='照片点评记录表';

@@ -16,12 +16,6 @@ public class PhotoReviewDetailVO {
     @Schema(description = "点评记录ID")
     private Long id;
 
-    @Schema(description = "所属相册ID")
-    private Long albumId;
-
-    @Schema(description = "所属相册名称")
-    private String albumName;
-
     @Schema(description = "原始文件名")
     private String originalName;
 

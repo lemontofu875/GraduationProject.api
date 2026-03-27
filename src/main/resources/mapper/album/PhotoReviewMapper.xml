@@ -4,8 +4,6 @@
 
     <resultMap id="PhotoReviewPageVOMap" type="com.youlai.boot.platform.album.model.vo.PhotoReviewPageVO">
         <id column="id" property="id"/>
-        <result column="album_id" property="albumId"/>
-        <result column="album_name" property="albumName"/>
         <result column="original_name" property="originalName"/>
         <result column="file_url" property="fileUrl"/>
         <result column="file_size" property="fileSize"/>
@@ -16,8 +14,6 @@
 
     <resultMap id="PhotoReviewDetailVOMap" type="com.youlai.boot.platform.album.model.vo.PhotoReviewDetailVO">
         <id column="id" property="id"/>
-        <result column="album_id" property="albumId"/>
-        <result column="album_name" property="albumName"/>
         <result column="original_name" property="originalName"/>
         <result column="file_path" property="filePath"/>
         <result column="file_url" property="fileUrl"/>
@@ -33,8 +29,6 @@
     <select id="getPhotoReviewPage" resultMap="PhotoReviewPageVOMap">
         SELECT
             pr.id,
-            pr.album_id,
-            a.name AS album_name,
             pr.original_name,
             pr.file_url,
             pr.file_size,
@@ -42,15 +36,25 @@
             pr.review_rating,
             pr.review_time
         FROM photo_review pr
-        LEFT JOIN album a ON a.id = pr.album_id
+        <where>
+            <if test="queryParams.reviewTime != null and queryParams.reviewTime.size() >= 1 and queryParams.reviewTime[0] != null and queryParams.reviewTime[0] != ''">
+                <bind name="reviewStart" value="queryParams.reviewTime[0].length() == 10 ? queryParams.reviewTime[0] + ' 00:00:00' : queryParams.reviewTime[0]"/>
+                AND pr.review_time &gt;= #{reviewStart}
+            </if>
+            <if test="queryParams.reviewTime != null and queryParams.reviewTime.size() >= 2 and queryParams.reviewTime[1] != null and queryParams.reviewTime[1] != ''">
+                <bind name="reviewEnd" value="queryParams.reviewTime[1].length() == 10 ? queryParams.reviewTime[1] + ' 23:59:59' : queryParams.reviewTime[1]"/>
+                AND pr.review_time &lt;= #{reviewEnd}
+            </if>
+            <if test="queryParams.reviewRating != null and queryParams.reviewRating != ''">
+                AND pr.review_rating = #{queryParams.reviewRating}
+            </if>
+        </where>
         ORDER BY pr.review_time DESC, pr.id DESC
     </select>
 
     <select id="getPhotoReviewDetail" resultMap="PhotoReviewDetailVOMap">
         SELECT
             pr.id,
-            pr.album_id,
-            a.name AS album_name,
             pr.original_name,
             pr.file_path,
             pr.file_url,
@@ -62,7 +66,6 @@
             pr.review_rating,
             pr.review_time
         FROM photo_review pr
-        LEFT JOIN album a ON a.id = pr.album_id
         WHERE pr.id = #{id}
     </select>
 </mapper>

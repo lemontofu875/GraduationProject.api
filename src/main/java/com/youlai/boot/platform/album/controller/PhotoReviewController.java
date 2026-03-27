@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,16 +38,14 @@ public class PhotoReviewController {
     @Operation(summary = "上传照片并生成 AI 点评", description = "上传照片、解析EXIF、调用大模型生成概述/优缺点/评级、保存点评记录")
     public Result<PhotoReviewUploadVO> uploadPhotoReview(
             @Parameter(name = "file", description = "照片文件，支持 jpg/png/webp 格式", required = true, schema = @Schema(type = "string", format = "binary"))
-            @RequestPart("file") MultipartFile file,
-            @Parameter(name = "albumId", description = "所属相册ID", required = true, in = ParameterIn.QUERY)
-            @RequestParam("albumId") Long albumId
+            @RequestPart("file") MultipartFile file
     ) {
-        PhotoReviewUploadVO vo = photoReviewService.uploadPhotoReview(file, albumId);
+        PhotoReviewUploadVO vo = photoReviewService.uploadPhotoReview(file);
         return Result.success(vo, "点评生成成功");
     }
 
     @GetMapping("/page")
-    @Operation(summary = "照片点评分页", description = "分页返回照片点评记录")
+    @Operation(summary = "照片点评分页", description = "分页返回照片点评记录，支持按点评时间范围、照片评级筛选")
     public PageResult<PhotoReviewPageVO> getPhotoReviewPage(PhotoReviewPageQuery queryParams) {
         IPage<PhotoReviewPageVO> result = photoReviewService.getPhotoReviewPage(queryParams);
         return PageResult.success(result);

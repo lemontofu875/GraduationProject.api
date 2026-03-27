@@ -18,9 +18,6 @@ import java.time.LocalDateTime;
 @TableName(value = "photo_review", autoResultMap = true)
 public class PhotoReview extends BaseEntity {
 
-    /** 所属相册ID */
-    private Long albumId;
-
     /** 原始文件名 */
     private String originalName;
 

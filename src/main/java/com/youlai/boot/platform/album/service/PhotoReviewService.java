@@ -15,11 +15,10 @@ public interface PhotoReviewService {
     /**
      * 上传照片并生成 AI 点评
      *
-     * @param file    照片文件
-     * @param albumId 所属相册ID
+     * @param file 照片文件
      * @return 点评结果
      */
-    PhotoReviewUploadVO uploadPhotoReview(MultipartFile file, Long albumId);
+    PhotoReviewUploadVO uploadPhotoReview(MultipartFile file);
 
     /**
      * 照片点评分页
