@@ -46,7 +46,7 @@ public class AiImageAnalysisServiceImpl implements AiImageAnalysisService {
 
     private static final String USER_PROMPT = "请分析这张图片，返回JSON格式：{\"description\":\"...\",\"tags\":\"...\",\"scene\":\"...\"}";
 
-    private static final String REVIEW_SYSTEM_PROMPT = "你是一名专业摄影点评助手。请基于照片内容进行点评（注意不要过于鸡蛋里挑骨头，当照片为杰出是就不用说明缺点了），仅返回JSON，包含字段：" +
+    private static final String REVIEW_SYSTEM_PROMPT = "你是一名专业摄影点评助手。请基于照片内容进行详细点评（注意不要过于鸡蛋里挑骨头），仅返回JSON，包含字段：" +
             "summary(照片概述)、advantages(优点)、disadvantages(缺点)、rating(照片评级)。" +
             "rating 必须且只能是以下五个值之一：杰出、优秀、良好、有待改进、烂片一张。请使用中文。";
 
