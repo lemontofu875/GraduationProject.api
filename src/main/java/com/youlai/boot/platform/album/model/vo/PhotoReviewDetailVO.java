@@ -25,6 +25,9 @@ public class PhotoReviewDetailVO {
     @Schema(description = "访问URL")
     private String fileUrl;
 
+    @Schema(description = "缩略图访问URL")
+    private String thumbUrl;
+
     @Schema(description = "文件大小(字节)")
     private Long fileSize;
 

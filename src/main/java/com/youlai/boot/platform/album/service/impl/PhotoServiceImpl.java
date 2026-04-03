@@ -16,6 +16,7 @@ import com.youlai.boot.platform.album.model.vo.PhotoPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoUploadVO;
 import com.youlai.boot.platform.album.service.AiImageAnalysisService;
 import com.youlai.boot.platform.album.service.ExifParseService;
+import com.youlai.boot.platform.album.service.ImageThumbnailService;
 import com.youlai.boot.platform.album.service.PhotoService;
 import com.youlai.boot.platform.album.mapper.AlbumMapper;
 import com.youlai.boot.platform.album.mapper.PhotoMapper;
@@ -50,6 +51,7 @@ public class PhotoServiceImpl implements PhotoService {
     private final FileService fileService;
     private final ExifParseService exifParseService;
     private final AiImageAnalysisService aiImageAnalysisService;
+    private final ImageThumbnailService imageThumbnailService;
     private final AlbumMapper albumMapper;
     private final PhotoMapper photoMapper;
     private final RecyclePhotoMapper recyclePhotoMapper;
@@ -60,13 +62,7 @@ public class PhotoServiceImpl implements PhotoService {
         // 1. 校验参数
         validateParams(file, albumId);
 
-        // 2. 上传文件到 OSS
-        FileInfo fileInfo = fileService.uploadFile(file);
-
-        // 3. 解析 EXIF
-        ExifInfoVO exifInfo = exifParseService.parseExif(file);
-
-        // 4. 调用 AI 分析图片内容（传入文件字节：本地/内网 URL 时以 base64 发送，否则大模型无法访问）
+        // 2. 先读取字节（供 AI、缩略图复用，避免流被消费后无法再次读取）
         byte[] fileBytes;
         try {
             fileBytes = file.getBytes();
@@ -74,15 +70,33 @@ public class PhotoServiceImpl implements PhotoService {
             log.warn("读取文件字节失败，AI 将仅使用 URL: {}", e.getMessage());
             fileBytes = null;
         }
+
+        // 3. 上传原图到 OSS
+        FileInfo fileInfo = fileService.uploadFile(file);
+
+        // 4. 解析 EXIF
+        ExifInfoVO exifInfo = exifParseService.parseExif(file);
+
+        // 5. 调用 AI 分析图片内容（传入文件字节：本地/内网 URL 时以 base64 发送，否则大模型无法访问）
         String mimeType = file.getContentType();
         AiImageAnalysisDTO aiResult = aiImageAnalysisService.analyzeImage(fileInfo.getUrl(), fileBytes, mimeType);
 
-        // 5. 持久化到数据库
+        // 6. WebP 缩略图并上传
+        FileInfo thumbInfo = null;
+        if (fileBytes != null && fileBytes.length > 0) {
+            thumbInfo = imageThumbnailService.uploadWebpThumbnail(fileBytes, fileInfo);
+        }
+
+        // 7. 持久化到数据库
         Photo photo = new Photo();
         photo.setAlbumId(albumId);
         photo.setOriginalName(file.getOriginalFilename());
         photo.setFilePath(fileInfo.getPath());
         photo.setFileUrl(fileInfo.getUrl());
+        if (thumbInfo != null) {
+            photo.setThumbPath(thumbInfo.getPath());
+            photo.setThumbUrl(thumbInfo.getUrl());
+        }
         photo.setFileSize(file.getSize());
         photo.setExifInfo(exifInfo);
         photo.setAiDescription(aiResult.getDescription());
@@ -93,7 +107,7 @@ public class PhotoServiceImpl implements PhotoService {
 
         photoMapper.insert(photo);
 
-        // 6. 构建返回 VO
+        // 8. 构建返回 VO
         return buildPhotoUploadVO(photo);
     }
 
@@ -154,6 +168,8 @@ public class PhotoServiceImpl implements PhotoService {
         recyclePhoto.setOriginalName(photo.getOriginalName());
         recyclePhoto.setFilePath(photo.getFilePath());
         recyclePhoto.setFileUrl(photo.getFileUrl());
+        recyclePhoto.setThumbPath(photo.getThumbPath());
+        recyclePhoto.setThumbUrl(photo.getThumbUrl());
         recyclePhoto.setFileSize(photo.getFileSize());
         recyclePhoto.setExifInfo(photo.getExifInfo());
         recyclePhoto.setAiDescription(photo.getAiDescription());
@@ -216,6 +232,8 @@ public class PhotoServiceImpl implements PhotoService {
         vo.setId(photo.getId());
         vo.setOriginalName(photo.getOriginalName());
         vo.setFilePath(photo.getFilePath());
+        vo.setFileUrl(photo.getFileUrl());
+        vo.setThumbUrl(photo.getThumbUrl());
         vo.setFileSize(photo.getFileSize());
         vo.setExifInfo(photo.getExifInfo());
         vo.setAiDescription(photo.getAiDescription());

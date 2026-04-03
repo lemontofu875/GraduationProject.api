@@ -35,6 +35,12 @@ public class RecyclePhoto extends BaseEntity {
     /** 访问URL */
     private String fileUrl;
 
+    /** 缩略图存储路径 */
+    private String thumbPath;
+
+    /** 缩略图访问URL */
+    private String thumbUrl;
+
     /** 文件大小(字节) */
     private Long fileSize;
 

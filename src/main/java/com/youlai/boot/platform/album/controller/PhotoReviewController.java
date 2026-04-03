@@ -35,7 +35,7 @@ public class PhotoReviewController {
     private final PhotoReviewService photoReviewService;
 
     @PostMapping("/upload")
-    @Operation(summary = "上传照片并生成 AI 点评", description = "上传照片、解析EXIF、调用大模型生成概述/优缺点/评级、保存点评记录")
+    @Operation(summary = "上传照片并生成 AI 点评", description = "上传原图、自动生成 WebP 缩略图、解析EXIF、调用大模型生成概述/优缺点/评级、保存点评记录；响应含 fileUrl 与 thumbUrl")
     public Result<PhotoReviewUploadVO> uploadPhotoReview(
             @Parameter(name = "file", description = "照片文件，支持 jpg/png/webp 格式", required = true, schema = @Schema(type = "string", format = "binary"))
             @RequestPart("file") MultipartFile file
@@ -45,7 +45,7 @@ public class PhotoReviewController {
     }
 
     @GetMapping("/page")
-    @Operation(summary = "照片点评分页", description = "分页返回照片点评记录，支持按点评时间范围、照片评级筛选")
+    @Operation(summary = "照片点评分页", description = "分页返回照片点评记录；列表展示请使用 thumbUrl（WebP 缩略图），大图使用 fileUrl；支持按点评时间范围、照片评级筛选")
     public PageResult<PhotoReviewPageVO> getPhotoReviewPage(PhotoReviewPageQuery queryParams) {
         IPage<PhotoReviewPageVO> result = photoReviewService.getPhotoReviewPage(queryParams);
         return PageResult.success(result);

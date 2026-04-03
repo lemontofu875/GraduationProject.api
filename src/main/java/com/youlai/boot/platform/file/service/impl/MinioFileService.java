@@ -21,6 +21,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 
@@ -128,6 +129,43 @@ public class MinioFileService implements FileService {
             fileInfo.setName(originalFilename);
             fileInfo.setUrl(fileUrl);
             fileInfo.setPath(objectPath);
+            return fileInfo;
+        } catch (Exception e) {
+            log.error("上传文件失败", e);
+            throw new BusinessException(ResultCode.UPLOAD_FILE_EXCEPTION, e.getMessage());
+        }
+    }
+
+    @Override
+    public FileInfo uploadBytes(byte[] data, String contentType, String relativePath) {
+        createBucketIfAbsent(bucketName);
+        String objectName = relativePath.replace("\\", "/");
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
+            PutObjectArgs putObjectArgs = PutObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(objectName)
+                    .contentType(StrUtil.isNotBlank(contentType) ? contentType : "application/octet-stream")
+                    .stream(inputStream, data.length, -1)
+                    .build();
+            minioClient.putObject(putObjectArgs);
+
+            String fileUrl;
+            if (StrUtil.isBlank(customDomain)) {
+                GetPresignedObjectUrlArgs getPresignedObjectUrlArgs = GetPresignedObjectUrlArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .method(Method.GET)
+                        .build();
+                fileUrl = minioClient.getPresignedObjectUrl(getPresignedObjectUrlArgs);
+                fileUrl = fileUrl.substring(0, fileUrl.indexOf("?"));
+            } else {
+                fileUrl = customDomain + "/" + bucketName + "/" + objectName;
+            }
+
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.setName(objectName.substring(objectName.lastIndexOf('/') + 1));
+            fileInfo.setUrl(fileUrl);
+            fileInfo.setPath(objectName);
             return fileInfo;
         } catch (Exception e) {
             log.error("上传文件失败", e);

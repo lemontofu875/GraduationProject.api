@@ -74,6 +74,8 @@ public class RecyclePhotoServiceImpl implements RecyclePhotoService {
         photo.setOriginalName(recyclePhoto.getOriginalName());
         photo.setFilePath(recyclePhoto.getFilePath());
         photo.setFileUrl(recyclePhoto.getFileUrl());
+        photo.setThumbPath(recyclePhoto.getThumbPath());
+        photo.setThumbUrl(recyclePhoto.getThumbUrl());
         photo.setFileSize(recyclePhoto.getFileSize());
         photo.setExifInfo(recyclePhoto.getExifInfo());
         photo.setAiDescription(recyclePhoto.getAiDescription());

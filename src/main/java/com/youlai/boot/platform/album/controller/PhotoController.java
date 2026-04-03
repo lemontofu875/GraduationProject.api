@@ -43,7 +43,7 @@ public class PhotoController {
     private final PhotoService photoService;
 
     @GetMapping("/page")
-    @Operation(summary = "照片分页列表", description = "分页返回照片及完整信息，支持按拍摄时间、AI描述/标签/场景、用户备注、是否收藏、相册名称筛选；不传筛选项时返回所有照片")
+    @Operation(summary = "照片分页列表", description = "分页返回照片信息；列表展示请使用 thumbUrl（WebP 缩略图），大图/详情使用 fileUrl；支持按拍摄时间、AI描述/标签/场景、用户备注、是否收藏、相册名称筛选；不传筛选项时返回所有照片")
     public PageResult<PhotoPageVO> getPhotoPage(PhotoPageQuery queryParams) {
         IPage<PhotoPageVO> result = photoService.getPhotoPage(queryParams);
         return PageResult.success(result);
@@ -73,7 +73,7 @@ public class PhotoController {
     }
 
     @PostMapping("/upload")
-    @Operation(summary = "照片上传", description = "上传照片、解析EXIF、调用大模型分析内容、存储到数据库")
+    @Operation(summary = "照片上传", description = "上传原图、自动生成 WebP 缩略图、解析EXIF、调用大模型分析内容、存储到数据库；响应含 fileUrl（原图）与 thumbUrl（列表用）")
     public Result<PhotoUploadVO> uploadPhoto(
             @Parameter(name = "file", description = "照片文件，支持 jpg/png/webp 格式", required = true, schema = @Schema(type = "string", format = "binary"))
             @RequestPart("file") MultipartFile file,

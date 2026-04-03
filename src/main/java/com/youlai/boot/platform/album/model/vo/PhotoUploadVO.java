@@ -24,6 +24,12 @@ public class PhotoUploadVO {
     @Schema(description = "存储路径")
     private String filePath;
 
+    @Schema(description = "原图访问URL")
+    private String fileUrl;
+
+    @Schema(description = "缩略图访问URL（WebP，列表预览用）")
+    private String thumbUrl;
+
     @Schema(description = "文件大小(字节)")
     private Long fileSize;
 

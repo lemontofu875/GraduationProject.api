@@ -6,6 +6,7 @@
         <id column="id" property="id"/>
         <result column="original_name" property="originalName"/>
         <result column="file_url" property="fileUrl"/>
+        <result column="thumb_url" property="thumbUrl"/>
         <result column="file_size" property="fileSize"/>
         <result column="review_summary" property="reviewSummary"/>
         <result column="review_rating" property="reviewRating"/>
@@ -17,6 +18,7 @@
         <result column="original_name" property="originalName"/>
         <result column="file_path" property="filePath"/>
         <result column="file_url" property="fileUrl"/>
+        <result column="thumb_url" property="thumbUrl"/>
         <result column="file_size" property="fileSize"/>
         <result column="exif_info" property="exifInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="review_summary" property="reviewSummary"/>
@@ -31,6 +33,7 @@
             pr.id,
             pr.original_name,
             pr.file_url,
+            pr.thumb_url,
             pr.file_size,
             pr.review_summary,
             pr.review_rating,
@@ -58,6 +61,7 @@
             pr.original_name,
             pr.file_path,
             pr.file_url,
+            pr.thumb_url,
             pr.file_size,
             pr.exif_info,
             pr.review_summary,

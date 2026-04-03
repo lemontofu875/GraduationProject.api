@@ -33,7 +33,7 @@ public class RecyclePhotoController {
     private final RecyclePhotoService recyclePhotoService;
 
     @GetMapping("/page")
-    @Operation(summary = "回收站照片分页", description = "分页返回回收站中的所有照片")
+    @Operation(summary = "回收站照片分页", description = "分页返回回收站中的照片；列表展示请使用 thumbUrl（WebP 缩略图），大图使用 fileUrl")
     public PageResult<RecyclePhotoPageVO> getRecyclePhotoPage(RecyclePhotoPageQuery queryParams) {
         IPage<RecyclePhotoPageVO> result = recyclePhotoService.getRecyclePhotoPage(queryParams);
         return PageResult.success(result);

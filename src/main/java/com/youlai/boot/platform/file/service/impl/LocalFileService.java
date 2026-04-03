@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
 /**
  * 本地存储服务类
@@ -67,6 +68,32 @@ public class LocalFileService implements FileService {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(originalFilename);
         fileInfo.setUrl(fileUrl);
+        fileInfo.setPath(objectPath);
+        return fileInfo;
+    }
+
+    @Override
+    public FileInfo uploadBytes(byte[] data, String contentType, String relativePath) {
+        // 统一使用正斜杠的相对路径，再按平台写入磁盘
+        String normalized = relativePath.replace("\\", "/");
+        String[] parts = normalized.split("/");
+        String fileName = parts[parts.length - 1];
+        String folder = parts.length > 1
+                ? String.join(File.separator, Arrays.copyOfRange(parts, 0, parts.length - 1))
+                : "";
+        String filePrefix = storagePath.endsWith(File.separator) ? storagePath : storagePath + File.separator;
+        String objectPath = folder.isEmpty() ? fileName : folder + File.separator + fileName;
+        String physicalPath = filePrefix + objectPath;
+        try {
+            FileUtil.mkParentDirs(new File(physicalPath));
+            FileUtil.writeBytes(data, physicalPath);
+        } catch (Exception e) {
+            log.error("文件上传失败", e);
+            throw new RuntimeException("文件上传失败");
+        }
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName(fileName);
+        fileInfo.setUrl(File.separator + objectPath);
         fileInfo.setPath(objectPath);
         return fileInfo;
     }

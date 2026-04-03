@@ -15,6 +15,7 @@ import com.youlai.boot.platform.album.model.vo.PhotoReviewPageVO;
 import com.youlai.boot.platform.album.model.vo.PhotoReviewUploadVO;
 import com.youlai.boot.platform.album.service.AiImageAnalysisService;
 import com.youlai.boot.platform.album.service.ExifParseService;
+import com.youlai.boot.platform.album.service.ImageThumbnailService;
 import com.youlai.boot.platform.album.service.PhotoReviewService;
 import com.youlai.boot.platform.file.model.FileInfo;
 import com.youlai.boot.platform.file.service.FileService;
@@ -40,6 +41,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     private final FileService fileService;
     private final ExifParseService exifParseService;
     private final AiImageAnalysisService aiImageAnalysisService;
+    private final ImageThumbnailService imageThumbnailService;
     private final PhotoReviewMapper photoReviewMapper;
 
     @Override
@@ -47,13 +49,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
     public PhotoReviewUploadVO uploadPhotoReview(MultipartFile file) {
         validateParams(file);
 
-        // 1. 上传文件
-        FileInfo fileInfo = fileService.uploadFile(file);
-
-        // 2. 解析 EXIF
-        ExifInfoVO exifInfo = exifParseService.parseExif(file);
-
-        // 3. 调用 AI 摄影点评
+        // 1. 先读取字节（与相册上传一致，供 AI、缩略图复用）
         byte[] fileBytes;
         try {
             fileBytes = file.getBytes();
@@ -61,15 +57,33 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
             log.warn("读取文件字节失败，AI 点评将仅使用 URL: {}", e.getMessage());
             fileBytes = null;
         }
+
+        // 2. 上传原图
+        FileInfo fileInfo = fileService.uploadFile(file);
+
+        // 3. 解析 EXIF
+        ExifInfoVO exifInfo = exifParseService.parseExif(file);
+
+        // 4. 调用 AI 摄影点评
         String mimeType = file.getContentType();
         PhotoReviewAnalysisDTO reviewResult = aiImageAnalysisService.analyzePhotoReview(fileInfo.getUrl(), fileBytes, mimeType);
 
-        // 4. 入库
+        // 5. WebP 缩略图
+        FileInfo thumbInfo = null;
+        if (fileBytes != null && fileBytes.length > 0) {
+            thumbInfo = imageThumbnailService.uploadWebpThumbnail(fileBytes, fileInfo);
+        }
+
+        // 6. 入库
         LocalDateTime reviewTime = LocalDateTime.now();
         PhotoReview review = new PhotoReview();
         review.setOriginalName(file.getOriginalFilename());
         review.setFilePath(fileInfo.getPath());
         review.setFileUrl(fileInfo.getUrl());
+        if (thumbInfo != null) {
+            review.setThumbPath(thumbInfo.getPath());
+            review.setThumbUrl(thumbInfo.getUrl());
+        }
         review.setFileSize(file.getSize());
         review.setExifInfo(exifInfo);
         review.setReviewSummary(StrUtil.isBlank(reviewResult.getSummary()) ? null : reviewResult.getSummary().trim());
@@ -132,6 +146,7 @@ public class PhotoReviewServiceImpl implements PhotoReviewService {
         vo.setId(review.getId());
         vo.setOriginalName(review.getOriginalName());
         vo.setFileUrl(review.getFileUrl());
+        vo.setThumbUrl(review.getThumbUrl());
         vo.setFileSize(review.getFileSize());
         vo.setReviewSummary(review.getReviewSummary());
         vo.setReviewAdvantages(review.getReviewAdvantages());

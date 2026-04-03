@@ -10,6 +10,7 @@
         <result column="original_name" property="originalName"/>
         <result column="file_path" property="filePath"/>
         <result column="file_url" property="fileUrl"/>
+        <result column="thumb_url" property="thumbUrl"/>
         <result column="file_size" property="fileSize"/>
         <result column="exif_info" property="exifInfo" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
         <result column="ai_description" property="aiDescription"/>
@@ -29,6 +30,7 @@
             p.original_name,
             p.file_path,
             p.file_url,
+            p.thumb_url,
             p.file_size,
             p.exif_info,
             p.ai_description,

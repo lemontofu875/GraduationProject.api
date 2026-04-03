@@ -19,6 +19,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 
@@ -87,6 +88,29 @@ public class AliyunFileService implements FileService {
         fileInfo.setName(originalFilename);
         fileInfo.setUrl(fileUrl);
         fileInfo.setPath(fileName);
+        return fileInfo;
+    }
+
+    @Override
+    @SneakyThrows
+    public FileInfo uploadBytes(byte[] data, String contentType, String relativePath) {
+        String key = relativePath.replace("\\", "/");
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data)) {
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(data.length);
+            if (contentType != null && !contentType.isEmpty()) {
+                metadata.setContentType(contentType);
+            }
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, key, inputStream, metadata);
+            aliyunOssClient.putObject(putObjectRequest);
+        } catch (Exception e) {
+            throw new RuntimeException("文件上传失败");
+        }
+        String fileUrl = "https://" + bucketName + "." + endpoint + "/" + key;
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setName(key.substring(key.lastIndexOf('/') + 1));
+        fileInfo.setUrl(fileUrl);
+        fileInfo.setPath(key);
         return fileInfo;
     }
 

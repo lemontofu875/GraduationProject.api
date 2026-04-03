@@ -33,6 +33,9 @@ public class PhotoPageVO {
     @Schema(description = "访问URL")
     private String fileUrl;
 
+    @Schema(description = "缩略图访问URL（优先 WebP，失败时为 JPEG；列表/宫格请用此字段；无则回退 fileUrl）")
+    private String thumbUrl;
+
     @Schema(description = "文件大小(字节)")
     private Long fileSize;
 
